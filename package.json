@@ -1,0 +1,11 @@
+{
+  "name": "node-http-request",
+  "version": "0.1.0",
+  "description": "Nodejs simple http request wrapper",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kohei Tahara",
+  "license": "MIT"
+}
