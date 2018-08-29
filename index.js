@@ -1,4 +1,5 @@
 var http = require('http');
+var https = require('https');
 var URL = require('url');
 
 var requests = function(url){
@@ -42,37 +43,25 @@ var requests = function(url){
 }
 
 requests.get = function(){
-    let opt = {};
-    let callback = null;
+    let opt = arguments[0];
+    let callback = arguments[1];
 
-    if(arguments.length == 1){
-        opt = arguments[0];
-        if(typeof(opt) == "string"){
-            opt = {url: opt};
+    if(typeof arguments[0] === 'string'){
+        opt = {
+            url : arguments[0]
         }
-    }else if(arguments.length == 2){
-        if(typeof(arguments[1]) == "function"){
-            callback = arguments[1];
-            opt = arguments[0];
-            if(typeof(opt) == "string"){
-                opt = {url: opt};
-            }
-        }else{
-            url = arguments[0];
-            opt = arguments[1];
-        }
-    }else{
-        opt = arguments[1];
-        opt.url = opt.url || arguments[0];
-        callback = arguments[2];
     }
-
 
 
     return new Promise(function(resolve, reject){
 
         let url = opt.url;
-        http.get(url, (res)=>{
+        let httpRequest = http;
+        if(url.match(/^https:\/\//)){
+            httpRequest = https;
+        }
+
+        httpRequest.get(url, (res)=>{
             let contentType = res.headers['content-type'];
             let body = '';
             let err = null; 
@@ -86,14 +75,15 @@ requests.get = function(){
                     if(/^application\/json/.test(contentType)){
                         body = JSON.parse(body);
                     }
+                    res.body = body;
     
                 }catch(e){
                     err = e;
                 }
                 if(!err){
-                    resolve(err, res, body);
+                    resolve(res);
                 }else{
-                    reject(err, res, body);
+                    reject(err);
                 }
                 !!callback && callback(err, res, body);
             });
@@ -110,46 +100,38 @@ requests.get = function(){
 };
 
 requests.post = function(){
+    let opt = arguments[0];
+    let callback = arguments[1];
 
-    let opt = {};
-    let callback = null;
-
-    if(arguments.length == 1){
-        opt = arguments[0];
-        if(typeof(opt) == "string"){
-            opt = {url: opt};
+    if(typeof arguments[0] === 'string'){
+        opt = {
+            url : arguments[0]
         }
-    }else if(arguments.length == 2){
-        if(typeof(arguments[1]) == "function"){
-            callback = arguments[1];
-            opt = arguments[0];
-            if(typeof(opt) == "string"){
-                opt = {url: opt};
-            }
-        }else{
-            url = arguments[0];
-            opt = arguments[1];
-        }
-    }else{
-        opt = arguments[1];
-        opt.url = opt.url || arguments[0];
-        callback = arguments[2];
     }
 
 
-    let options = new URL(opt.url);
+
+    let options = {};
     for(let key in opt){
         options[key] = opt[key];
     }
     options.method = "POST";
 
-    sendData = opt.body || JSON.stringify(opt.json | "");
+    sendData = opt.body || JSON.stringify(opt.json || {});
 
     options.headers = options.headers || {};
     options.headers["Content-Length"] = Buffer.byteLength(sendData);
 
     return new Promise(function(resolve, reject){
-        let req = http.request(options, (res)=>{
+
+        let url = opt.url;
+        let httpRequest = http;
+        if(url.match(/^https:\/\//)){
+            httpRequest = https;
+        }
+
+        
+        let req = httpRequest.request(opt.url, options, (res)=>{
             let contentType = res.headers['content-type'];
             let body = '';
             let err = null; 
@@ -191,45 +173,37 @@ requests.post = function(){
 
 requests.put = function(){
 
-    let opt = {};
-    let callback = null;
+    let opt = arguments[0];
+    let callback = arguments[1];
 
-    if(arguments.length == 1){
-        opt = arguments[0];
-        if(typeof(opt) == "string"){
-            opt = {url: opt};
+    if(typeof arguments[0] === 'string'){
+        opt = {
+            url : arguments[0]
         }
-    }else if(arguments.length == 2){
-        if(typeof(arguments[1]) == "function"){
-            callback = arguments[1];
-            opt = arguments[0];
-            if(typeof(opt) == "string"){
-                opt = {url: opt};
-            }
-        }else{
-            url = arguments[0];
-            opt = arguments[1];
-        }
-    }else{
-        opt = arguments[1];
-        opt.url = opt.url || arguments[0];
-        callback = arguments[2];
     }
 
 
-    let options = new URL(opt.url);
+
+    let options = {};
     for(let key in opt){
         options[key] = opt[key];
     }
     options.method = "PUT";
 
-    sendData = opt.body || JSON.stringify(opt.json | "");
+    sendData = opt.body || JSON.stringify(opt.json || {});
 
     options.headers = options.headers || {};
     options.headers["Content-Length"] = Buffer.byteLength(sendData);
 
     return new Promise(function(resolve, reject){
-        let req = http.request(options, (res)=>{
+        let url = opt.url;
+        let httpRequest = http;
+        if(url.match(/^https:\/\//)){
+            httpRequest = https;
+        }
+
+        
+        let req = httpRequest.request(opt.url, options, (res)=>{
             let contentType = res.headers['content-type'];
             let body = '';
             let err = null; 
@@ -271,45 +245,34 @@ requests.put = function(){
 
 requests.delete = function(){
 
-    let opt = {};
-    let callback = null;
+    let opt = arguments[0];
+    let callback = arguments[1];
 
-    if(arguments.length == 1){
-        opt = arguments[0];
-        if(typeof(opt) == "string"){
-            opt = {url: opt};
+    if(typeof arguments[0] === 'string'){
+        opt = {
+            url : arguments[0]
         }
-    }else if(arguments.length == 2){
-        if(typeof(arguments[1]) == "function"){
-            callback = arguments[1];
-            opt = arguments[0];
-            if(typeof(opt) == "string"){
-                opt = {url: opt};
-            }
-        }else{
-            url = arguments[0];
-            opt = arguments[1];
-        }
-    }else{
-        opt = arguments[1];
-        opt.url = opt.url || arguments[0];
-        callback = arguments[2];
     }
 
 
-    let options = new URL(opt.url);
+
+    let options = {};
     for(let key in opt){
         options[key] = opt[key];
     }
     options.method = "DELETE";
 
-    sendData = opt.body || JSON.stringify(opt.json | "");
-
     options.headers = options.headers || {};
     options.headers["Content-Length"] = Buffer.byteLength(sendData);
 
     return new Promise(function(resolve, reject){
-        let req = http.request(options, (res)=>{
+        let url = opt.url;
+        let httpRequest = http;
+        if(url.match(/^https:\/\//)){
+            httpRequest = https;
+        }
+
+        let req = httpRequest.request(opt.url, options, (res)=>{
             let contentType = res.headers['content-type'];
             let body = '';
             let err = null; 
@@ -341,7 +304,6 @@ requests.delete = function(){
             
         });
             
-        req.write(sendData);
         req.end();
     });
 
